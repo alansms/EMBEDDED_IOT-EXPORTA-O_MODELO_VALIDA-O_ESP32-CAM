@@ -1,0 +1,35 @@
+/*
+ * gpio_types.h
+ *
+ * Definições dos pinos da câmera para XIAO ESP32S3 Sense
+ */
+
+#ifndef ESP32_GPIO_TYPES_H
+#define ESP32_GPIO_TYPES_H
+
+#include "esp_camera.h"
+#include "driver/gpio.h"
+
+// Definições específicas para XIAO ESP32S3 Sense para pinos da câmera
+#define CAM_PIN_PWDN     38  // Power down
+#define CAM_PIN_RESET    39  // Reset
+#define CAM_PIN_XCLK     12  // XCLK
+#define CAM_PIN_SIOD     2   // SDA (I2C)
+#define CAM_PIN_SIOC     1   // SCL (I2C)
+
+#define CAM_PIN_D0       13  // Y2
+#define CAM_PIN_D1       14  // Y3
+#define CAM_PIN_D2       15  // Y4
+#define CAM_PIN_D3       16  // Y5
+#define CAM_PIN_D4       17  // Y6
+#define CAM_PIN_D5       18  // Y7
+#define CAM_PIN_D6       19  // Y8
+#define CAM_PIN_D7       20  // Y9
+#define CAM_PIN_VSYNC    21  // VSYNC
+#define CAM_PIN_HREF     47  // HREF
+#define CAM_PIN_PCLK     11  // PCLK
+
+// Configurações do timer para a câmera
+#define XCLK_FREQ_HZ    20000000
+
+#endif // ESP32_GPIO_TYPES_H

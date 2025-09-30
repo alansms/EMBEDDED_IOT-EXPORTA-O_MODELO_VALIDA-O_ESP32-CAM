@@ -1,0 +1,568 @@
+Processing esp32cam (platform: espressif32; board: esp32cam; framework: arduino)
+--------------------------------------------------------------------------------
+Verbose mode can be enabled via `-v, --verbose` option
+CONFIGURATION: https://docs.platformio.org/page/boards/espressif32/esp32cam.html
+PLATFORM: Espressif 32 (6.12.0) > AI Thinker ESP32-CAM
+HARDWARE: ESP32 240MHz, 320KB RAM, 4MB Flash
+DEBUG: Current (cmsis-dap) External (cmsis-dap, esp-bridge, esp-prog, iot-bus-jtag, jlink, minimodule, olimex-arm-usb-ocd, olimex-arm-usb-ocd-h, olimex-arm-usb-tiny-h, olimex-jtag-tiny, tumpa)
+PACKAGES: 
+ - framework-arduinoespressif32 @ 3.20017.241212+sha.dcc1105b 
+ - tool-esptoolpy @ 2.40900.250804 (4.9.0) 
+ - toolchain-xtensa-esp32 @ 8.4.0+2021r2-patch5
+LDF: Library Dependency Finder -> https://bit.ly/configure-pio-ldf
+LDF Modes: Finder ~ chain, Compatibility ~ soft
+Found 33 compatible libraries
+Scanning dependencies...
+No dependencies
+Building in release mode
+Compiling .pio/build/esp32cam/src/main.cpp.o
+Compiling .pio/build/esp32cam/src/main_simple.cpp.o
+In file included from /Users/alansms/.platformio/packages/framework-arduinoespressif32/cores/esp32/esp32-hal.h:33,
+                 from /Users/alansms/.platformio/packages/framework-arduinoespressif32/cores/esp32/Arduino.h:36,
+                 from src/main.cpp:13:
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/esp_hw_support/include/esp_sleep.h:176:37: error: 'gpio_num_t' was not declared in this scope
+ bool esp_sleep_is_valid_wakeup_gpio(gpio_num_t gpio_num);
+                                     ^~~~~~~~~~
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/esp_hw_support/include/esp_sleep.h:176:37: note: suggested alternative: 'gpio_isr_t'
+ bool esp_sleep_is_valid_wakeup_gpio(gpio_num_t gpio_num);
+                                     ^~~~~~~~~~
+                                     gpio_isr_t
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/esp_hw_support/include/esp_sleep.h:203:40: error: 'gpio_num_t' was not declared in this scope
+ esp_err_t esp_sleep_enable_ext0_wakeup(gpio_num_t gpio_num, int level);
+                                        ^~~~~~~~~~
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/esp_hw_support/include/esp_sleep.h:203:40: note: suggested alternative: 'gpio_isr_t'
+ esp_err_t esp_sleep_enable_ext0_wakeup(gpio_num_t gpio_num, int level);
+                                        ^~~~~~~~~~
+                                        gpio_isr_t
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/esp_hw_support/include/esp_sleep.h:203:61: error: expected primary-expression before 'int'
+ esp_err_t esp_sleep_enable_ext0_wakeup(gpio_num_t gpio_num, int level);
+                                                             ^~~
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/esp_hw_support/include/esp_sleep.h:203:70: error: expression list treated as compound expression in initializer [-fpermissive]
+ esp_err_t esp_sleep_enable_ext0_wakeup(gpio_num_t gpio_num, int level);
+                                                                      ^
+In file included from /Users/alansms/.platformio/packages/framework-arduinoespressif32/cores/esp32/esp32-hal-dac.h:28,
+                 from /Users/alansms/.platformio/packages/framework-arduinoespressif32/cores/esp32/esp32-hal.h:85,
+                 from /Users/alansms/.platformio/packages/framework-arduinoespressif32/cores/esp32/Arduino.h:36,
+                 from src/main.cpp:13:
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:84:26: error: 'gpio_num_t' was not declared in this scope
+ esp_err_t gpio_reset_pin(gpio_num_t gpio_num);
+                          ^~~~~~~~~~
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:84:26: note: suggested alternative: 'gpio_isr_t'
+ esp_err_t gpio_reset_pin(gpio_num_t gpio_num);
+                          ^~~~~~~~~~
+                          gpio_isr_t
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:97:30: error: 'gpio_num_t' was not declared in this scope
+ esp_err_t gpio_set_intr_type(gpio_num_t gpio_num, gpio_int_type_t intr_type);
+                              ^~~~~~~~~~
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:97:30: note: suggested alternative: 'gpio_isr_t'
+ esp_err_t gpio_set_intr_type(gpio_num_t gpio_num, gpio_int_type_t intr_type);
+                              ^~~~~~~~~~
+                              gpio_isr_t
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:97:67: error: expected primary-expression before 'intr_type'
+ esp_err_t gpio_set_intr_type(gpio_num_t gpio_num, gpio_int_type_t intr_type);
+                                                                   ^~~~~~~~~
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:97:76: error: expression list treated as compound expression in initializer [-fpermissive]
+ esp_err_t gpio_set_intr_type(gpio_num_t gpio_num, gpio_int_type_t intr_type);
+                                                                            ^
+In file included from /Users/alansms/.platformio/packages/framework-arduinoespressif32/cores/esp32/esp32-hal-dac.h:28,
+                 from /Users/alansms/.platformio/packages/framework-arduinoespressif32/cores/esp32/esp32-hal.h:85,
+                 from /Users/alansms/.platformio/packages/framework-arduinoespressif32/cores/esp32/Arduino.h:36,
+                 from src/main.cpp:13:
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:115:28: error: 'gpio_num_t' was not declared in this scope
+ esp_err_t gpio_intr_enable(gpio_num_t gpio_num);
+                            ^~~~~~~~~~
+In file included from /Users/alansms/.platformio/packages/framework-arduinoespressif32/cores/esp32/esp32-hal.h:33,
+                 from /Users/alansms/.platformio/packages/framework-arduinoespressif32/cores/esp32/Arduino.h:36,
+                 from src/main_simple.cpp:12:
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/esp_hw_support/include/esp_sleep.h:176:37: error: 'gpio_num_t' was not declared in this scope
+ bool esp_sleep_is_valid_wakeup_gpio(gpio_num_t gpio_num);
+                                     ^~~~~~~~~~
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:115:28: note: suggested alternative: 'gpio_isr_t'
+ esp_err_t gpio_intr_enable(gpio_num_t gpio_num);
+                            ^~~~~~~~~~
+                            gpio_isr_t
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:127:29: error: 'gpio_num_t' was not declared in this scope
+ esp_err_t gpio_intr_disable(gpio_num_t gpio_num);
+                             ^~~~~~~~~~
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:127:29: note: suggested alternative: 'gpio_isr_t'
+ esp_err_t gpio_intr_disable(gpio_num_t gpio_num);
+                             ^~~~~~~~~~
+                             gpio_isr_t
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:140:26: error: 'gpio_num_t' was not declared in this scope
+ esp_err_t gpio_set_level(gpio_num_t gpio_num, uint32_t level);
+                          ^~~~~~~~~~
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/esp_hw_support/include/esp_sleep.h:176:37: note: suggested alternative: 'gpio_isr_t'
+ bool esp_sleep_is_valid_wakeup_gpio(gpio_num_t gpio_num);
+                                     ^~~~~~~~~~
+                                     gpio_isr_t
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/esp_hw_support/include/esp_sleep.h:203:40: error: 'gpio_num_t' was not declared in this scope
+ esp_err_t esp_sleep_enable_ext0_wakeup(gpio_num_t gpio_num, int level);
+                                        ^~~~~~~~~~
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:140:26: note: suggested alternative: 'gpio_isr_t'
+ esp_err_t gpio_set_level(gpio_num_t gpio_num, uint32_t level);
+                          ^~~~~~~~~~
+                          gpio_isr_t
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:140:56: error: expected primary-expression before 'level'
+ esp_err_t gpio_set_level(gpio_num_t gpio_num, uint32_t level);
+                                                        ^~~~~
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:140:61: error: expression list treated as compound expression in initializer [-fpermissive]
+ esp_err_t gpio_set_level(gpio_num_t gpio_num, uint32_t level);
+                                                             ^
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:154:20: error: 'gpio_num_t' was not declared in this scope
+ int gpio_get_level(gpio_num_t gpio_num);
+                    ^~~~~~~~~~
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/esp_hw_support/include/esp_sleep.h:203:40: note: suggested alternative: 'gpio_isr_t'
+ esp_err_t esp_sleep_enable_ext0_wakeup(gpio_num_t gpio_num, int level);
+                                        ^~~~~~~~~~
+                                        gpio_isr_t
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/esp_hw_support/include/esp_sleep.h:203:61: error: expected primary-expression before 'int'
+ esp_err_t esp_sleep_enable_ext0_wakeup(gpio_num_t gpio_num, int level);
+                                                             ^~~
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/esp_hw_support/include/esp_sleep.h:203:70: error: expression list treated as compound expression in initializer [-fpermissive]
+ esp_err_t esp_sleep_enable_ext0_wakeup(gpio_num_t gpio_num, int level);
+                                                                      ^
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:154:20: note: suggested alternative: 'gpio_isr_t'
+ int gpio_get_level(gpio_num_t gpio_num);
+                    ^~~~~~~~~~
+                    gpio_isr_t
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:169:30: error: 'gpio_num_t' was not declared in this scope
+ esp_err_t gpio_set_direction(gpio_num_t gpio_num, gpio_mode_t mode);
+                              ^~~~~~~~~~
+In file included from /Users/alansms/.platformio/packages/framework-arduinoespressif32/cores/esp32/esp32-hal-dac.h:28,
+                 from /Users/alansms/.platformio/packages/framework-arduinoespressif32/cores/esp32/esp32-hal.h:85,
+                 from /Users/alansms/.platformio/packages/framework-arduinoespressif32/cores/esp32/Arduino.h:36,
+                 from src/main_simple.cpp:12:
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:84:26: error: 'gpio_num_t' was not declared in this scope
+ esp_err_t gpio_reset_pin(gpio_num_t gpio_num);
+                          ^~~~~~~~~~
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:169:30: note: suggested alternative: 'gpio_isr_t'
+ esp_err_t gpio_set_direction(gpio_num_t gpio_num, gpio_mode_t mode);
+                              ^~~~~~~~~~
+                              gpio_isr_t
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:169:63: error: expected primary-expression before 'mode'
+ esp_err_t gpio_set_direction(gpio_num_t gpio_num, gpio_mode_t mode);
+                                                               ^~~~
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:169:67: error: expression list treated as compound expression in initializer [-fpermissive]
+ esp_err_t gpio_set_direction(gpio_num_t gpio_num, gpio_mode_t mode);
+                                                                   ^
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:184:30: error: 'gpio_num_t' was not declared in this scope
+ esp_err_t gpio_set_pull_mode(gpio_num_t gpio_num, gpio_pull_mode_t pull);
+                              ^~~~~~~~~~
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:84:26: note: suggested alternative: 'gpio_isr_t'
+ esp_err_t gpio_reset_pin(gpio_num_t gpio_num);
+                          ^~~~~~~~~~
+                          gpio_isr_t
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:97:30: error: 'gpio_num_t' was not declared in this scope
+ esp_err_t gpio_set_intr_type(gpio_num_t gpio_num, gpio_int_type_t intr_type);
+                              ^~~~~~~~~~
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:184:30: note: suggested alternative: 'gpio_isr_t'
+ esp_err_t gpio_set_pull_mode(gpio_num_t gpio_num, gpio_pull_mode_t pull);
+                              ^~~~~~~~~~
+                              gpio_isr_t
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:184:68: error: expected primary-expression before 'pull'
+ esp_err_t gpio_set_pull_mode(gpio_num_t gpio_num, gpio_pull_mode_t pull);
+                                                                    ^~~~
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:184:72: error: expression list treated as compound expression in initializer [-fpermissive]
+ esp_err_t gpio_set_pull_mode(gpio_num_t gpio_num, gpio_pull_mode_t pull);
+                                                                        ^
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:197:30: error: 'gpio_num_t' was not declared in this scope
+ esp_err_t gpio_wakeup_enable(gpio_num_t gpio_num, gpio_int_type_t intr_type);
+                              ^~~~~~~~~~
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:97:30: note: suggested alternative: 'gpio_isr_t'
+ esp_err_t gpio_set_intr_type(gpio_num_t gpio_num, gpio_int_type_t intr_type);
+                              ^~~~~~~~~~
+                              gpio_isr_t
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:97:67: error: expected primary-expression before 'intr_type'
+ esp_err_t gpio_set_intr_type(gpio_num_t gpio_num, gpio_int_type_t intr_type);
+                                                                   ^~~~~~~~~
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:97:76: error: expression list treated as compound expression in initializer [-fpermissive]
+ esp_err_t gpio_set_intr_type(gpio_num_t gpio_num, gpio_int_type_t intr_type);
+                                                                            ^
+In file included from /Users/alansms/.platformio/packages/framework-arduinoespressif32/cores/esp32/esp32-hal-dac.h:28,
+                 from /Users/alansms/.platformio/packages/framework-arduinoespressif32/cores/esp32/esp32-hal.h:85,
+                 from /Users/alansms/.platformio/packages/framework-arduinoespressif32/cores/esp32/Arduino.h:36,
+                 from src/main_simple.cpp:12:
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:115:28: error: 'gpio_num_t' was not declared in this scope
+ esp_err_t gpio_intr_enable(gpio_num_t gpio_num);
+                            ^~~~~~~~~~
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:197:30: note: suggested alternative: 'gpio_isr_t'
+ esp_err_t gpio_wakeup_enable(gpio_num_t gpio_num, gpio_int_type_t intr_type);
+                              ^~~~~~~~~~
+                              gpio_isr_t
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:197:67: error: expected primary-expression before 'intr_type'
+ esp_err_t gpio_wakeup_enable(gpio_num_t gpio_num, gpio_int_type_t intr_type);
+                                                                   ^~~~~~~~~
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:197:76: error: expression list treated as compound expression in initializer [-fpermissive]
+ esp_err_t gpio_wakeup_enable(gpio_num_t gpio_num, gpio_int_type_t intr_type);
+                                                                            ^
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:208:31: error: 'gpio_num_t' was not declared in this scope
+ esp_err_t gpio_wakeup_disable(gpio_num_t gpio_num);
+                               ^~~~~~~~~~
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:115:28: note: suggested alternative: 'gpio_isr_t'
+ esp_err_t gpio_intr_enable(gpio_num_t gpio_num);
+                            ^~~~~~~~~~
+                            gpio_isr_t
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:127:29: error: 'gpio_num_t' was not declared in this scope
+ esp_err_t gpio_intr_disable(gpio_num_t gpio_num);
+                             ^~~~~~~~~~
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:208:31: note: suggested alternative: 'gpio_isr_t'
+ esp_err_t gpio_wakeup_disable(gpio_num_t gpio_num);
+                               ^~~~~~~~~~
+                               gpio_isr_t
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:245:26: error: 'gpio_num_t' was not declared in this scope
+ esp_err_t gpio_pullup_en(gpio_num_t gpio_num);
+                          ^~~~~~~~~~
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:127:29: note: suggested alternative: 'gpio_isr_t'
+ esp_err_t gpio_intr_disable(gpio_num_t gpio_num);
+                             ^~~~~~~~~~
+                             gpio_isr_t
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:140:26: error: 'gpio_num_t' was not declared in this scope
+ esp_err_t gpio_set_level(gpio_num_t gpio_num, uint32_t level);
+                          ^~~~~~~~~~
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:245:26: note: suggested alternative: 'gpio_isr_t'
+ esp_err_t gpio_pullup_en(gpio_num_t gpio_num);
+                          ^~~~~~~~~~
+                          gpio_isr_t
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:256:27: error: 'gpio_num_t' was not declared in this scope
+ esp_err_t gpio_pullup_dis(gpio_num_t gpio_num);
+                           ^~~~~~~~~~
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:140:26: note: suggested alternative: 'gpio_isr_t'
+ esp_err_t gpio_set_level(gpio_num_t gpio_num, uint32_t level);
+                          ^~~~~~~~~~
+                          gpio_isr_t
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:140:56: error: expected primary-expression before 'level'
+ esp_err_t gpio_set_level(gpio_num_t gpio_num, uint32_t level);
+                                                        ^~~~~
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:140:61: error: expression list treated as compound expression in initializer [-fpermissive]
+ esp_err_t gpio_set_level(gpio_num_t gpio_num, uint32_t level);
+                                                             ^
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:154:20: error: 'gpio_num_t' was not declared in this scope
+ int gpio_get_level(gpio_num_t gpio_num);
+                    ^~~~~~~~~~
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:154:20: note: suggested alternative: 'gpio_isr_t'
+ int gpio_get_level(gpio_num_t gpio_num);
+                    ^~~~~~~~~~
+                    gpio_isr_t
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:169:30: error: 'gpio_num_t' was not declared in this scope
+ esp_err_t gpio_set_direction(gpio_num_t gpio_num, gpio_mode_t mode);
+                              ^~~~~~~~~~
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:256:27: note: suggested alternative: 'gpio_isr_t'
+ esp_err_t gpio_pullup_dis(gpio_num_t gpio_num);
+                           ^~~~~~~~~~
+                           gpio_isr_t
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:267:28: error: 'gpio_num_t' was not declared in this scope
+ esp_err_t gpio_pulldown_en(gpio_num_t gpio_num);
+                            ^~~~~~~~~~
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:169:30: note: suggested alternative: 'gpio_isr_t'
+ esp_err_t gpio_set_direction(gpio_num_t gpio_num, gpio_mode_t mode);
+                              ^~~~~~~~~~
+                              gpio_isr_t
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:169:63: error: expected primary-expression before 'mode'
+ esp_err_t gpio_set_direction(gpio_num_t gpio_num, gpio_mode_t mode);
+                                                               ^~~~
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:169:67: error: expression list treated as compound expression in initializer [-fpermissive]
+ esp_err_t gpio_set_direction(gpio_num_t gpio_num, gpio_mode_t mode);
+                                                                   ^
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:184:30: error: 'gpio_num_t' was not declared in this scope
+ esp_err_t gpio_set_pull_mode(gpio_num_t gpio_num, gpio_pull_mode_t pull);
+                              ^~~~~~~~~~
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:267:28: note: suggested alternative: 'gpio_isr_t'
+ esp_err_t gpio_pulldown_en(gpio_num_t gpio_num);
+                            ^~~~~~~~~~
+                            gpio_isr_t
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:278:29: error: 'gpio_num_t' was not declared in this scope
+ esp_err_t gpio_pulldown_dis(gpio_num_t gpio_num);
+                             ^~~~~~~~~~
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:184:30: note: suggested alternative: 'gpio_isr_t'
+ esp_err_t gpio_set_pull_mode(gpio_num_t gpio_num, gpio_pull_mode_t pull);
+                              ^~~~~~~~~~
+                              gpio_isr_t
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:184:68: error: expected primary-expression before 'pull'
+ esp_err_t gpio_set_pull_mode(gpio_num_t gpio_num, gpio_pull_mode_t pull);
+                                                                    ^~~~
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:184:72: error: expression list treated as compound expression in initializer [-fpermissive]
+ esp_err_t gpio_set_pull_mode(gpio_num_t gpio_num, gpio_pull_mode_t pull);
+                                                                        ^
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:197:30: error: 'gpio_num_t' was not declared in this scope
+ esp_err_t gpio_wakeup_enable(gpio_num_t gpio_num, gpio_int_type_t intr_type);
+                              ^~~~~~~~~~
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:278:29: note: suggested alternative: 'gpio_isr_t'
+ esp_err_t gpio_pulldown_dis(gpio_num_t gpio_num);
+                             ^~~~~~~~~~
+                             gpio_isr_t
+In file included from /Users/alansms/.platformio/packages/framework-arduinoespressif32/cores/esp32/esp32-hal-dac.h:28,
+                 from /Users/alansms/.platformio/packages/framework-arduinoespressif32/cores/esp32/esp32-hal.h:85,
+                 from /Users/alansms/.platformio/packages/framework-arduinoespressif32/cores/esp32/Arduino.h:36,
+                 from src/main.cpp:13:
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:326:32: error: 'gpio_num_t' was not declared in this scope
+ esp_err_t gpio_isr_handler_add(gpio_num_t gpio_num, gpio_isr_t isr_handler, void *args);
+                                ^~~~~~~~~~
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:197:30: note: suggested alternative: 'gpio_isr_t'
+ esp_err_t gpio_wakeup_enable(gpio_num_t gpio_num, gpio_int_type_t intr_type);
+                              ^~~~~~~~~~
+                              gpio_isr_t
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:197:67: error: expected primary-expression before 'intr_type'
+ esp_err_t gpio_wakeup_enable(gpio_num_t gpio_num, gpio_int_type_t intr_type);
+                                                                   ^~~~~~~~~
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:197:76: error: expression list treated as compound expression in initializer [-fpermissive]
+ esp_err_t gpio_wakeup_enable(gpio_num_t gpio_num, gpio_int_type_t intr_type);
+                                                                            ^
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:208:31: error: 'gpio_num_t' was not declared in this scope
+ esp_err_t gpio_wakeup_disable(gpio_num_t gpio_num);
+                               ^~~~~~~~~~
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:326:32: note: suggested alternative: 'gpio_isr_t'
+ esp_err_t gpio_isr_handler_add(gpio_num_t gpio_num, gpio_isr_t isr_handler, void *args);
+                                ^~~~~~~~~~
+                                gpio_isr_t
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:326:64: error: expected primary-expression before 'isr_handler'
+ esp_err_t gpio_isr_handler_add(gpio_num_t gpio_num, gpio_isr_t isr_handler, void *args);
+                                                                ^~~~~~~~~~~
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:326:77: error: expected primary-expression before 'void'
+ esp_err_t gpio_isr_handler_add(gpio_num_t gpio_num, gpio_isr_t isr_handler, void *args);
+                                                                             ^~~~
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:326:87: error: expression list treated as compound expression in initializer [-fpermissive]
+ esp_err_t gpio_isr_handler_add(gpio_num_t gpio_num, gpio_isr_t isr_handler, void *args);
+                                                                                       ^
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:338:35: error: 'gpio_num_t' was not declared in this scope
+ esp_err_t gpio_isr_handler_remove(gpio_num_t gpio_num);
+                                   ^~~~~~~~~~
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:208:31: note: suggested alternative: 'gpio_isr_t'
+ esp_err_t gpio_wakeup_disable(gpio_num_t gpio_num);
+                               ^~~~~~~~~~
+                               gpio_isr_t
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:245:26: error: 'gpio_num_t' was not declared in this scope
+ esp_err_t gpio_pullup_en(gpio_num_t gpio_num);
+                          ^~~~~~~~~~
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:338:35: note: suggested alternative: 'gpio_isr_t'
+ esp_err_t gpio_isr_handler_remove(gpio_num_t gpio_num);
+                                   ^~~~~~~~~~
+                                   gpio_isr_t
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:350:37: error: 'gpio_num_t' was not declared in this scope
+ esp_err_t gpio_set_drive_capability(gpio_num_t gpio_num, gpio_drive_cap_t strength);
+                                     ^~~~~~~~~~
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:245:26: note: suggested alternative: 'gpio_isr_t'
+ esp_err_t gpio_pullup_en(gpio_num_t gpio_num);
+                          ^~~~~~~~~~
+                          gpio_isr_t
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:256:27: error: 'gpio_num_t' was not declared in this scope
+ esp_err_t gpio_pullup_dis(gpio_num_t gpio_num);
+                           ^~~~~~~~~~
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:350:37: note: suggested alternative: 'gpio_isr_t'
+ esp_err_t gpio_set_drive_capability(gpio_num_t gpio_num, gpio_drive_cap_t strength);
+                                     ^~~~~~~~~~
+                                     gpio_isr_t
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:350:75: error: expected primary-expression before 'strength'
+ esp_err_t gpio_set_drive_capability(gpio_num_t gpio_num, gpio_drive_cap_t strength);
+                                                                           ^~~~~~~~
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:350:83: error: expression list treated as compound expression in initializer [-fpermissive]
+ esp_err_t gpio_set_drive_capability(gpio_num_t gpio_num, gpio_drive_cap_t strength);
+                                                                                   ^
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:362:37: error: 'gpio_num_t' was not declared in this scope
+ esp_err_t gpio_get_drive_capability(gpio_num_t gpio_num, gpio_drive_cap_t *strength);
+                                     ^~~~~~~~~~
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:256:27: note: suggested alternative: 'gpio_isr_t'
+ esp_err_t gpio_pullup_dis(gpio_num_t gpio_num);
+                           ^~~~~~~~~~
+                           gpio_isr_t
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:267:28: error: 'gpio_num_t' was not declared in this scope
+ esp_err_t gpio_pulldown_en(gpio_num_t gpio_num);
+                            ^~~~~~~~~~
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:267:28: note: suggested alternative: 'gpio_isr_t'
+ esp_err_t gpio_pulldown_en(gpio_num_t gpio_num);
+                            ^~~~~~~~~~
+                            gpio_isr_t
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:278:29: error: 'gpio_num_t' was not declared in this scope
+ esp_err_t gpio_pulldown_dis(gpio_num_t gpio_num);
+                             ^~~~~~~~~~
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:362:37: note: suggested alternative: 'gpio_isr_t'
+ esp_err_t gpio_get_drive_capability(gpio_num_t gpio_num, gpio_drive_cap_t *strength);
+                                     ^~~~~~~~~~
+                                     gpio_isr_t
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:362:75: error: expected primary-expression before '*' token
+ esp_err_t gpio_get_drive_capability(gpio_num_t gpio_num, gpio_drive_cap_t *strength);
+                                                                           ^
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:362:76: error: 'strength' was not declared in this scope
+ esp_err_t gpio_get_drive_capability(gpio_num_t gpio_num, gpio_drive_cap_t *strength);
+                                                                            ^~~~~~~~
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:278:29: note: suggested alternative: 'gpio_isr_t'
+ esp_err_t gpio_pulldown_dis(gpio_num_t gpio_num);
+                             ^~~~~~~~~~
+                             gpio_isr_t
+In file included from /Users/alansms/.platformio/packages/framework-arduinoespressif32/cores/esp32/esp32-hal-dac.h:28,
+                 from /Users/alansms/.platformio/packages/framework-arduinoespressif32/cores/esp32/esp32-hal.h:85,
+                 from /Users/alansms/.platformio/packages/framework-arduinoespressif32/cores/esp32/Arduino.h:36,
+                 from src/main_simple.cpp:12:
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:326:32: error: 'gpio_num_t' was not declared in this scope
+ esp_err_t gpio_isr_handler_add(gpio_num_t gpio_num, gpio_isr_t isr_handler, void *args);
+                                ^~~~~~~~~~
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:362:76: note: suggested alternative: 'strnstr'
+ esp_err_t gpio_get_drive_capability(gpio_num_t gpio_num, gpio_drive_cap_t *strength);
+                                                                            ^~~~~~~~
+                                                                            strnstr
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:362:84: error: expression list treated as compound expression in initializer [-fpermissive]
+ esp_err_t gpio_get_drive_capability(gpio_num_t gpio_num, gpio_drive_cap_t *strength);
+                                                                                    ^
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:389:24: error: 'gpio_num_t' was not declared in this scope
+ esp_err_t gpio_hold_en(gpio_num_t gpio_num);
+                        ^~~~~~~~~~
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:326:32: note: suggested alternative: 'gpio_isr_t'
+ esp_err_t gpio_isr_handler_add(gpio_num_t gpio_num, gpio_isr_t isr_handler, void *args);
+                                ^~~~~~~~~~
+                                gpio_isr_t
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:326:64: error: expected primary-expression before 'isr_handler'
+ esp_err_t gpio_isr_handler_add(gpio_num_t gpio_num, gpio_isr_t isr_handler, void *args);
+                                                                ^~~~~~~~~~~
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:326:77: error: expected primary-expression before 'void'
+ esp_err_t gpio_isr_handler_add(gpio_num_t gpio_num, gpio_isr_t isr_handler, void *args);
+                                                                             ^~~~
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:326:87: error: expression list treated as compound expression in initializer [-fpermissive]
+ esp_err_t gpio_isr_handler_add(gpio_num_t gpio_num, gpio_isr_t isr_handler, void *args);
+                                                                                       ^
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:338:35: error: 'gpio_num_t' was not declared in this scope
+ esp_err_t gpio_isr_handler_remove(gpio_num_t gpio_num);
+                                   ^~~~~~~~~~
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:389:24: note: suggested alternative: 'gpio_isr_t'
+ esp_err_t gpio_hold_en(gpio_num_t gpio_num);
+                        ^~~~~~~~~~
+                        gpio_isr_t
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:408:25: error: 'gpio_num_t' was not declared in this scope
+ esp_err_t gpio_hold_dis(gpio_num_t gpio_num);
+                         ^~~~~~~~~~
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:338:35: note: suggested alternative: 'gpio_isr_t'
+ esp_err_t gpio_isr_handler_remove(gpio_num_t gpio_num);
+                                   ^~~~~~~~~~
+                                   gpio_isr_t
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:350:37: error: 'gpio_num_t' was not declared in this scope
+ esp_err_t gpio_set_drive_capability(gpio_num_t gpio_num, gpio_drive_cap_t strength);
+                                     ^~~~~~~~~~
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:408:25: note: suggested alternative: 'gpio_isr_t'
+ esp_err_t gpio_hold_dis(gpio_num_t gpio_num);
+                         ^~~~~~~~~~
+                         gpio_isr_t
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:474:29: error: 'gpio_num_t' was not declared in this scope
+ esp_err_t gpio_sleep_sel_en(gpio_num_t gpio_num);
+                             ^~~~~~~~~~
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:350:37: note: suggested alternative: 'gpio_isr_t'
+ esp_err_t gpio_set_drive_capability(gpio_num_t gpio_num, gpio_drive_cap_t strength);
+                                     ^~~~~~~~~~
+                                     gpio_isr_t
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:350:75: error: expected primary-expression before 'strength'
+ esp_err_t gpio_set_drive_capability(gpio_num_t gpio_num, gpio_drive_cap_t strength);
+                                                                           ^~~~~~~~
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:350:83: error: expression list treated as compound expression in initializer [-fpermissive]
+ esp_err_t gpio_set_drive_capability(gpio_num_t gpio_num, gpio_drive_cap_t strength);
+                                                                                   ^
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:362:37: error: 'gpio_num_t' was not declared in this scope
+ esp_err_t gpio_get_drive_capability(gpio_num_t gpio_num, gpio_drive_cap_t *strength);
+                                     ^~~~~~~~~~
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:474:29: note: suggested alternative: 'gpio_isr_t'
+ esp_err_t gpio_sleep_sel_en(gpio_num_t gpio_num);
+                             ^~~~~~~~~~
+                             gpio_isr_t
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:483:30: error: 'gpio_num_t' was not declared in this scope
+ esp_err_t gpio_sleep_sel_dis(gpio_num_t gpio_num);
+                              ^~~~~~~~~~
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:362:37: note: suggested alternative: 'gpio_isr_t'
+ esp_err_t gpio_get_drive_capability(gpio_num_t gpio_num, gpio_drive_cap_t *strength);
+                                     ^~~~~~~~~~
+                                     gpio_isr_t
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:362:75: error: expected primary-expression before '*' token
+ esp_err_t gpio_get_drive_capability(gpio_num_t gpio_num, gpio_drive_cap_t *strength);
+                                                                           ^
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:362:76: error: 'strength' was not declared in this scope
+ esp_err_t gpio_get_drive_capability(gpio_num_t gpio_num, gpio_drive_cap_t *strength);
+                                                                            ^~~~~~~~
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:483:30: note: suggested alternative: 'gpio_isr_t'
+ esp_err_t gpio_sleep_sel_dis(gpio_num_t gpio_num);
+                              ^~~~~~~~~~
+                              gpio_isr_t
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:497:36: error: 'gpio_num_t' was not declared in this scope
+ esp_err_t gpio_sleep_set_direction(gpio_num_t gpio_num, gpio_mode_t mode);
+                                    ^~~~~~~~~~
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:362:76: note: suggested alternative: 'strnstr'
+ esp_err_t gpio_get_drive_capability(gpio_num_t gpio_num, gpio_drive_cap_t *strength);
+                                                                            ^~~~~~~~
+                                                                            strnstr
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:362:84: error: expression list treated as compound expression in initializer [-fpermissive]
+ esp_err_t gpio_get_drive_capability(gpio_num_t gpio_num, gpio_drive_cap_t *strength);
+                                                                                    ^
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:389:24: error: 'gpio_num_t' was not declared in this scope
+ esp_err_t gpio_hold_en(gpio_num_t gpio_num);
+                        ^~~~~~~~~~
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:497:36: note: suggested alternative: 'gpio_isr_t'
+ esp_err_t gpio_sleep_set_direction(gpio_num_t gpio_num, gpio_mode_t mode);
+                                    ^~~~~~~~~~
+                                    gpio_isr_t
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:497:69: error: expected primary-expression before 'mode'
+ esp_err_t gpio_sleep_set_direction(gpio_num_t gpio_num, gpio_mode_t mode);
+                                                                     ^~~~
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:497:73: error: expression list treated as compound expression in initializer [-fpermissive]
+ esp_err_t gpio_sleep_set_direction(gpio_num_t gpio_num, gpio_mode_t mode);
+                                                                         ^
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:511:36: error: 'gpio_num_t' was not declared in this scope
+ esp_err_t gpio_sleep_set_pull_mode(gpio_num_t gpio_num, gpio_pull_mode_t pull);
+                                    ^~~~~~~~~~
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:389:24: note: suggested alternative: 'gpio_isr_t'
+ esp_err_t gpio_hold_en(gpio_num_t gpio_num);
+                        ^~~~~~~~~~
+                        gpio_isr_t
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:408:25: error: 'gpio_num_t' was not declared in this scope
+ esp_err_t gpio_hold_dis(gpio_num_t gpio_num);
+                         ^~~~~~~~~~
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:511:36: note: suggested alternative: 'gpio_isr_t'
+ esp_err_t gpio_sleep_set_pull_mode(gpio_num_t gpio_num, gpio_pull_mode_t pull);
+                                    ^~~~~~~~~~
+                                    gpio_isr_t
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:511:74: error: expected primary-expression before 'pull'
+ esp_err_t gpio_sleep_set_pull_mode(gpio_num_t gpio_num, gpio_pull_mode_t pull);
+                                                                          ^~~~
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:511:78: error: expression list treated as compound expression in initializer [-fpermissive]
+ esp_err_t gpio_sleep_set_pull_mode(gpio_num_t gpio_num, gpio_pull_mode_t pull);
+                                                                              ^
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:408:25: note: suggested alternative: 'gpio_isr_t'
+ esp_err_t gpio_hold_dis(gpio_num_t gpio_num);
+                         ^~~~~~~~~~
+                         gpio_isr_t
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:474:29: error: 'gpio_num_t' was not declared in this scope
+ esp_err_t gpio_sleep_sel_en(gpio_num_t gpio_num);
+                             ^~~~~~~~~~
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:474:29: note: suggested alternative: 'gpio_isr_t'
+ esp_err_t gpio_sleep_sel_en(gpio_num_t gpio_num);
+                             ^~~~~~~~~~
+                             gpio_isr_t
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:483:30: error: 'gpio_num_t' was not declared in this scope
+ esp_err_t gpio_sleep_sel_dis(gpio_num_t gpio_num);
+                              ^~~~~~~~~~
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:483:30: note: suggested alternative: 'gpio_isr_t'
+ esp_err_t gpio_sleep_sel_dis(gpio_num_t gpio_num);
+                              ^~~~~~~~~~
+                              gpio_isr_t
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:497:36: error: 'gpio_num_t' was not declared in this scope
+ esp_err_t gpio_sleep_set_direction(gpio_num_t gpio_num, gpio_mode_t mode);
+                                    ^~~~~~~~~~
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:497:36: note: suggested alternative: 'gpio_isr_t'
+ esp_err_t gpio_sleep_set_direction(gpio_num_t gpio_num, gpio_mode_t mode);
+                                    ^~~~~~~~~~
+                                    gpio_isr_t
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:497:69: error: expected primary-expression before 'mode'
+ esp_err_t gpio_sleep_set_direction(gpio_num_t gpio_num, gpio_mode_t mode);
+                                                                     ^~~~
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:497:73: error: expression list treated as compound expression in initializer [-fpermissive]
+ esp_err_t gpio_sleep_set_direction(gpio_num_t gpio_num, gpio_mode_t mode);
+                                                                         ^
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:511:36: error: 'gpio_num_t' was not declared in this scope
+ esp_err_t gpio_sleep_set_pull_mode(gpio_num_t gpio_num, gpio_pull_mode_t pull);
+                                    ^~~~~~~~~~
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:511:36: note: suggested alternative: 'gpio_isr_t'
+ esp_err_t gpio_sleep_set_pull_mode(gpio_num_t gpio_num, gpio_pull_mode_t pull);
+                                    ^~~~~~~~~~
+                                    gpio_isr_t
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:511:74: error: expected primary-expression before 'pull'
+ esp_err_t gpio_sleep_set_pull_mode(gpio_num_t gpio_num, gpio_pull_mode_t pull);
+                                                                          ^~~~
+/Users/alansms/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h:511:78: error: expression list treated as compound expression in initializer [-fpermissive]
+ esp_err_t gpio_sleep_set_pull_mode(gpio_num_t gpio_num, gpio_pull_mode_t pull);
+                                                                              ^
+*** [.pio/build/esp32cam/src/main.cpp.o] Error 1
+*** [.pio/build/esp32cam/src/main_simple.cpp.o] Error 1
+========================== [FAILED] Took 0.66 seconds ==========================

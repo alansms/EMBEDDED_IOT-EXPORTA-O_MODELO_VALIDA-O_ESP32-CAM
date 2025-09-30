@@ -1,18 +1,9 @@
 /*
- * SPRINT 3 - ESP32-CAM com TensorFlow Lite Micro
- * ==============================================
+ * SPRINT 3 - ESP32-CAM Simulação de Classificação
+ * ================================================
  * 
- * Sistema de classificação de cartuchos HP em tempo real
- * usando ESP32-CAM e TensorFlow Lite Micro.
- * 
- * Funcionalidades:
- * - Captura de imagem com câmera OV2640
- * - Pré-processamento (redimensionamento + quantização INT8)
- * - Inferência com modelo embarcado
- * - Exibição de resultados no Serial Monitor
- * 
- * Hardware: ESP32-CAM (AI Thinker)
- * Câmera: OV2640
+ * Versão simplificada para teste sem TensorFlow Lite Micro.
+ * Simula a classificação de cartuchos HP.
  * 
  * Autor: Equipe SPRINT 3
  * Data: 2025
@@ -20,6 +11,16 @@
 
 #include <Arduino.h>
 #include "esp_camera.h"
+#include <WiFi.h>
+#include <WebServer.h>
+#include <ArduinoJson.h>
+
+// No XIAO ESP32S3, Serial0 é a porta USB
+#define Serial Serial0
+
+// Configurações WiFi
+const char* ssid = "SEU_WIFI_SSID";
+const char* password = "SUA_SENHA_WIFI";
 
 // =============================================================================
 // CONFIGURAÇÕES DA CÂMERA (AI THINKER ESP32-CAM)
@@ -43,120 +44,537 @@
 #define PCLK_GPIO_NUM     22
 
 // =============================================================================
-// INCLUSÕES DO TENSORFLOW LITE MICRO
+// CONFIGURAÇÕES DO SISTEMA
 // =============================================================================
 
-#include "model.h"     // g_model, g_model_len (gerado pelo convert_to_c_array.py)
-#include "labels.h"    // kCategoryLabels, kCategoryCount
+static const int kImgSize = 96;
+static const int kChannels = 1;
 
-// TensorFlow Lite Micro
-#include "tensorflow/lite/micro/all_ops_resolver.h"
-#include "tensorflow/lite/micro/micro_error_reporter.h"
-#include "tensorflow/lite/micro/micro_interpreter.h"
-#include "tensorflow/lite/schema/schema_generated.h"
-#include "tensorflow/lite/version.h"
-
-// =============================================================================
-// CONFIGURAÇÕES DO MODELO
-// =============================================================================
-
-static const int kImgSize   = 96;    // Tamanho da imagem de entrada
-static const int kChannels  = 1;       // Número de canais (1=grayscale, 3=RGB)
-static const bool kUseGray = (kChannels == 1);
-
-// Arena de memória para TensorFlow Lite Micro (ajuste conforme necessário)
-constexpr int kArenaSize = 380 * 1024;  // ~380KB
-alignas(16) static uint8_t tensor_arena[kArenaSize];
-
-// =============================================================================
-// VARIÁVEIS GLOBAIS
-// =============================================================================
-
-tflite::MicroErrorReporter micro_error_reporter;
-tflite::ErrorReporter* error_reporter = &micro_error_reporter;
-tflite::AllOpsResolver resolver;
-
-const tflite::Model* model = nullptr;
-tflite::MicroInterpreter* interpreter = nullptr;
-TfLiteTensor* input = nullptr;
-TfLiteTensor* output = nullptr;
-
-// Buffer para pré-processamento (INT8)
-static int8_t input_buffer[kImgSize * kImgSize * kChannels];
+// Labels das classes
+static const char* kCategoryLabels[] = {
+  "HP_ORIGINAL",
+  "NAO_HP"
+};
 
 // Contadores para estatísticas
 static unsigned long total_inferences = 0;
 static unsigned long total_time_ms = 0;
 
-// =============================================================================
-// FUNÇÕES DE PRÉ-PROCESSAMENTO
-// =============================================================================
+// Servidor web
+WebServer server(80);
 
-/**
- * Redimensiona imagem RGB565 para grayscale INT8 usando interpolação nearest-neighbor
- */
-static void resize_nn_rgb565_to_gray_int8(const uint16_t* src, int sw, int sh,
-                                          int8_t* dst, int dw, int dh,
-                                          float scale, int zero_point) {
-  for (int y = 0; y < dh; ++y) {
-    int sy = y * sh / dh;
-    for (int x = 0; x < dw; ++x) {
-      int sx = x * sw / dw;
-      const uint16_t pix = src[sy * sw + sx];
-      
-      // Converte RGB565 para canais 8-bit
-      uint8_t r = ((pix >> 11) & 0x1F) * 255 / 31;
-      uint8_t g = ((pix >> 5)  & 0x3F) * 255 / 63;
-      uint8_t b = ( pix        & 0x1F) * 255 / 31;
-      
-      // Converte para grayscale usando pesos padrão
-      uint8_t gray = (uint8_t)(0.299f*r + 0.587f*g + 0.114f*b);
-      
-      // Aplica quantização INT8
-      int val = (int)roundf(((float)gray - zero_point) / scale);
-      if (val < -128) val = -128;
-      if (val > 127)  val = 127;
-      
-      dst[y*dw + x] = (int8_t)val;
-    }
-  }
+// Dados globais para a interface web
+struct ClassificationData {
+  String prediction;
+  float confidence;
+  float hp_score;
+  float nao_hp_score;
+  float avg_r, avg_g, avg_b;
+  unsigned long total_inferences;
+  float avg_time;
+} current_data;
+
+// Função auxiliar para imprimir caracteres repetidos
+void printRepeatChar(char c, int n) {
+  for (int i = 0; i < n; i++) Serial.print(c);
+  Serial.println();
 }
 
-/**
- * Redimensiona imagem RGB565 para RGB INT8 usando interpolação nearest-neighbor
- */
-static void resize_nn_rgb565_to_rgb_int8(const uint16_t* src, int sw, int sh,
-                                         int8_t* dst, int dw, int dh,
-                                         float scale, int zero_point) {
-  for (int y = 0; y < dh; ++y) {
-    int sy = y * sh / dh;
-    for (int x = 0; x < dw; ++x) {
-      int sx = x * sw / dw;
-      const uint16_t pix = src[sy * sw + sx];
-      
-      // Converte RGB565 para canais 8-bit
-      uint8_t r = ((pix >> 11) & 0x1F) * 255 / 31;
-      uint8_t g = ((pix >> 5)  & 0x3F) * 255 / 63;
-      uint8_t b = ( pix        & 0x1F) * 255 / 31;
+// =============================================================================
+// FUNÇÕES DO SERVIDOR WEB
+// =============================================================================
 
-      // Armazena os 3 canais consecutivamente
-      int idx = (y*dw + x) * 3;
-      
-      // Aplica quantização INT8 para cada canal
-      int vr = (int)roundf(((float)r - zero_point) / scale);
-      int vg = (int)roundf(((float)g - zero_point) / scale);
-      int vb = (int)roundf(((float)b - zero_point) / scale);
-      
-      // Clampa os valores para o range INT8
-      if (vr < -128) vr = -128; if (vr > 127) vr = 127;
-      if (vg < -128) vg = -128; if (vg > 127) vg = 127;
-      if (vb < -128) vb = -128; if (vb > 127) vb = 127;
-      
-      dst[idx+0] = (int8_t)vr;
-      dst[idx+1] = (int8_t)vg;
-      dst[idx+2] = (int8_t)vb;
+String getIndexHTML() {
+  return R"rawliteral(
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ESP32-CAM HP Detector</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body { font-family: Arial; margin: 20px; background: #f0f0f0; }
+        .container { max-width: 600px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; }
+        h1 { color: #0066cc; text-align: center; }
+        .camera-box { border: 2px solid #ccc; padding: 10px; margin: 20px 0; text-align: center; }
+        #camera { max-width: 100%; height: auto; }
+        .data { background: #f9f9f9; padding: 15px; margin: 10px 0; border-radius: 5px; }
+        .result { font-size: 20px; font-weight: bold; padding: 15px; margin: 10px 0; border-radius: 5px; text-align: center; }
+        .hp { background: #d4edda; color: #155724; border: 2px solid #28a745; }
+        .nao-hp { background: #f8d7da; color: #721c24; border: 2px solid #dc3545; }
+        button { background: #0066cc; color: white; border: none; padding: 10px 15px; margin: 5px; border-radius: 5px; cursor: pointer; }
+        button:hover { background: #0052a3; }
+        .stats { display: flex; justify-content: space-between; margin: 10px 0; }
+        .stat { text-align: center; }
+        .value { font-size: 18px; font-weight: bold; color: #0066cc; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 ESP32-CAM Classificador HP</h1>
+
+        <div class="camera-box">
+            <h3>📷 Câmera ao Vivo</h3>
+            <img id="camera" src="/capture.jpg" alt="Loading camera..." />
+            <br><br>
+            <button onclick="updateCamera()">🔄 Atualizar Câmera</button>
+            <button onclick="testConnection()">🧪 Testar Conexão</button>
+        </div>
+
+        <div id="result" class="result">🔍 Aguardando análise...</div>
+
+        <div class="data">
+            <h3>📊 Resultados</h3>
+            <div class="stats">
+                <div class="stat">
+                    <div>HP Original</div>
+                    <div class="value" id="hp">0%</div>
+                </div>
+                <div class="stat">
+                    <div>Não HP</div>
+                    <div class="value" id="nao-hp">0%</div>
+                </div>
+                <div class="stat">
+                    <div>Confiança</div>
+                    <div class="value" id="conf">0%</div>
+                </div>
+            </div>
+
+            <p><strong>RGB:</strong> R=<span id="r">-</span>, G=<span id="g">-</span>, B=<span id="b">-</span></p>
+            <p><strong>Análises:</strong> <span id="total">0</span> | <strong>Tempo:</strong> <span id="tempo">0ms</span></p>
+
+            <button onclick="updateData()">📊 Atualizar Dados</button>
+            <button onclick="autoUpdate()">⚡ Auto-Update</button>
+        </div>
+
+        <div class="data">
+            <h3>🔧 Diagnóstico</h3>
+            <p id="status">Carregando...</p>
+            <button onclick="diagnosis()">🩺 Diagnóstico</button>
+        </div>
+    </div>
+
+    <script>
+        let autoUpdateActive = false;
+        let updateInterval;
+
+        function updateCamera() {
+            console.log('Atualizando câmera...');
+            const img = document.getElementById('camera');
+            const timestamp = Date.now();
+            img.src = '/capture.jpg?t=' + timestamp;
+        }
+
+        function updateData() {
+            console.log('Buscando dados...');
+            fetch('/status')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('hp').textContent = data.scores.hp_original.toFixed(1) + '%';
+                    document.getElementById('nao-hp').textContent = data.scores.nao_hp.toFixed(1) + '%';
+                    document.getElementById('conf').textContent = data.confidence.toFixed(1) + '%';
+                    document.getElementById('r').textContent = data.features.r.toFixed(0);
+                    document.getElementById('g').textContent = data.features.g.toFixed(0);
+                    document.getElementById('b').textContent = data.features.b.toFixed(0);
+                    document.getElementById('total').textContent = data.stats.total_inferences;
+                    document.getElementById('tempo').textContent = data.stats.avg_time.toFixed(1) + 'ms';
+
+                    const result = document.getElementById('result');
+                    if (data.prediction === 'HP_ORIGINAL') {
+                        result.className = 'result hp';
+                        result.textContent = '✅ HP ORIGINAL (' + data.confidence.toFixed(1) + '%)';
+                    } else {
+                        result.className = 'result nao-hp';
+                        result.textContent = '❌ NÃO HP (' + data.confidence.toFixed(1) + '%)';
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro:', error);
+                    document.getElementById('status').textContent = 'Erro na comunicação: ' + error.message;
+                });
+        }
+
+        function testConnection() {
+            console.log('Testando conexão...');
+            fetch('/test')
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('status').textContent = 'Teste OK: ' + data;
+                })
+                .catch(error => {
+                    document.getElementById('status').textContent = 'Erro no teste: ' + error.message;
+                });
+        }
+
+        function diagnosis() {
+            console.log('Executando diagnóstico...');
+            fetch('/health')
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('status').textContent = 'Diagnóstico: ' + data;
+                })
+                .catch(error => {
+                    document.getElementById('status').textContent = 'Erro no diagnóstico: ' + error.message;
+                });
+        }
+
+        function autoUpdate() {
+            if (autoUpdateActive) {
+                clearInterval(updateInterval);
+                autoUpdateActive = false;
+                document.getElementById('status').textContent = 'Auto-update DESATIVADO';
+            } else {
+                updateInterval = setInterval(() => {
+                    updateCamera();
+                    updateData();
+                }, 3000);
+                autoUpdateActive = true;
+                document.getElementById('status').textContent = 'Auto-update ATIVADO (3s)';
+            }
+        }
+
+        // Inicialização
+        window.onload = function() {
+            console.log('Página carregada');
+            testConnection();
+            setTimeout(() => {
+                updateCamera();
+                updateData();
+            }, 1000);
+        };
+
+        // Tratamento de erros de imagem
+        document.getElementById('camera').onerror = function() {
+            console.log('Erro ao carregar imagem');
+            this.alt = 'Erro na câmera - clique em Atualizar Câmera';
+            document.getElementById('status').textContent = 'Erro: Imagem da câmera não carregou';
+        };
+
+        document.getElementById('camera').onload = function() {
+            console.log('Imagem carregada com sucesso');
+            document.getElementById('status').textContent = 'Câmera funcionando';
+        };
+    </script>
+</body>
+</html>
+)rawliteral";
+}
+
+void handleRoot() {
+  server.send(200, "text/html", getIndexHTML());
+}
+
+void handleCapture() {
+  camera_fb_t* fb = esp_camera_fb_get();
+  if (!fb) {
+    server.send(500, "text/plain", "Erro ao capturar imagem");
+    return;
+  }
+  
+  server.send_P(200, "image/jpeg", (const char*)fb->buf, fb->len);
+  esp_camera_fb_return(fb);
+}
+
+void handleStatus() {
+  JsonDocument doc;
+  
+  doc["prediction"] = current_data.prediction;
+  doc["confidence"] = current_data.confidence;
+  doc["scores"]["hp_original"] = current_data.hp_score;
+  doc["scores"]["nao_hp"] = current_data.nao_hp_score;
+  doc["features"]["r"] = current_data.avg_r;
+  doc["features"]["g"] = current_data.avg_g;
+  doc["features"]["b"] = current_data.avg_b;
+  doc["stats"]["total_inferences"] = current_data.total_inferences;
+  doc["stats"]["avg_time"] = current_data.avg_time;
+  
+  String response;
+  serializeJson(doc, response);
+  server.send(200, "application/json", response);
+}
+
+void handleTest() {
+  server.send(200, "text/plain", "ESP32-CAM funcionando! " + String(millis()));
+}
+
+void handleHealth() {
+  String health = "Sistema OK - Câmera: ";
+  health += (esp_camera_fb_get() != NULL) ? "OK" : "ERRO";
+  health += " | WiFi: ";
+  health += (WiFi.status() == WL_CONNECTED) ? "Conectado" : "Desconectado";
+  health += " | Uptime: " + String(millis() / 1000) + "s";
+  
+  server.send(200, "text/plain", health);
+}
+
+String getIndexHTML() {
+  return R"rawliteral(
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ESP32-CAM HP Detector</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body { font-family: Arial; margin: 20px; background: #f0f0f0; }
+        .container { max-width: 600px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; }
+        h1 { color: #0066cc; text-align: center; }
+        .camera-box { border: 2px solid #ccc; padding: 10px; margin: 20px 0; text-align: center; }
+        #camera { max-width: 100%; height: auto; }
+        .data { background: #f9f9f9; padding: 15px; margin: 10px 0; border-radius: 5px; }
+        .result { font-size: 20px; font-weight: bold; padding: 15px; margin: 10px 0; border-radius: 5px; text-align: center; }
+        .hp { background: #d4edda; color: #155724; border: 2px solid #28a745; }
+        .nao-hp { background: #f8d7da; color: #721c24; border: 2px solid #dc3545; }
+        button { background: #0066cc; color: white; border: none; padding: 10px 15px; margin: 5px; border-radius: 5px; cursor: pointer; }
+        button:hover { background: #0052a3; }
+        .stats { display: flex; justify-content: space-between; margin: 10px 0; }
+        .stat { text-align: center; }
+        .value { font-size: 18px; font-weight: bold; color: #0066cc; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 ESP32-CAM Classificador HP</h1>
+
+        <div class="camera-box">
+            <h3>📷 Câmera ao Vivo</h3>
+            <img id="camera" src="/capture.jpg" alt="Loading camera..." />
+            <br><br>
+            <button onclick="updateCamera()">🔄 Atualizar Câmera</button>
+            <button onclick="testConnection()">🧪 Testar Conexão</button>
+        </div>
+
+        <div id="result" class="result">🔍 Aguardando análise...</div>
+
+        <div class="data">
+            <h3>📊 Resultados</h3>
+            <div class="stats">
+                <div class="stat">
+                    <div>HP Original</div>
+                    <div class="value" id="hp">0%</div>
+                </div>
+                <div class="stat">
+                    <div>Não HP</div>
+                    <div class="value" id="nao-hp">0%</div>
+                </div>
+                <div class="stat">
+                    <div>Confiança</div>
+                    <div class="value" id="conf">0%</div>
+                </div>
+            </div>
+
+            <p><strong>RGB:</strong> R=<span id="r">-</span>, G=<span id="g">-</span>, B=<span id="b">-</span></p>
+            <p><strong>Análises:</strong> <span id="total">0</span> | <strong>Tempo:</strong> <span id="tempo">0ms</span></p>
+
+            <button onclick="updateData()">📊 Atualizar Dados</button>
+            <button onclick="autoUpdate()">⚡ Auto-Update</button>
+        </div>
+
+        <div class="data">
+            <h3>🔧 Diagnóstico</h3>
+            <p id="status">Carregando...</p>
+            <button onclick="diagnosis()">🩺 Diagnóstico</button>
+        </div>
+    </div>
+
+    <script>
+        let autoUpdateActive = false;
+        let updateInterval;
+
+        function updateCamera() {
+            console.log('Atualizando câmera...');
+            const img = document.getElementById('camera');
+            const timestamp = Date.now();
+            img.src = '/capture.jpg?t=' + timestamp;
+        }
+
+        function updateData() {
+            console.log('Buscando dados...');
+            fetch('/status')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('hp').textContent = data.scores.hp_original.toFixed(1) + '%';
+                    document.getElementById('nao-hp').textContent = data.scores.nao_hp.toFixed(1) + '%';
+                    document.getElementById('conf').textContent = data.confidence.toFixed(1) + '%';
+                    document.getElementById('r').textContent = data.features.r.toFixed(0);
+                    document.getElementById('g').textContent = data.features.g.toFixed(0);
+                    document.getElementById('b').textContent = data.features.b.toFixed(0);
+                    document.getElementById('total').textContent = data.stats.total_inferences;
+                    document.getElementById('tempo').textContent = data.stats.avg_time.toFixed(1) + 'ms';
+
+                    const result = document.getElementById('result');
+                    if (data.prediction === 'HP_ORIGINAL') {
+                        result.className = 'result hp';
+                        result.textContent = '✅ HP ORIGINAL (' + data.confidence.toFixed(1) + '%)';
+                    } else {
+                        result.className = 'result nao-hp';
+                        result.textContent = '❌ NÃO HP (' + data.confidence.toFixed(1) + '%)';
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro:', error);
+                    document.getElementById('status').textContent = 'Erro na comunicação: ' + error.message;
+                });
+        }
+
+        function testConnection() {
+            console.log('Testando conexão...');
+            fetch('/test')
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('status').textContent = 'Teste OK: ' + data;
+                })
+                .catch(error => {
+                    document.getElementById('status').textContent = 'Erro no teste: ' + error.message;
+                });
+        }
+
+        function diagnosis() {
+            console.log('Executando diagnóstico...');
+            fetch('/health')
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('status').textContent = 'Diagnóstico: ' + data;
+                })
+                .catch(error => {
+                    document.getElementById('status').textContent = 'Erro no diagnóstico: ' + error.message;
+                });
+        }
+
+        function autoUpdate() {
+            if (autoUpdateActive) {
+                clearInterval(updateInterval);
+                autoUpdateActive = false;
+                document.getElementById('status').textContent = 'Auto-update DESATIVADO';
+            } else {
+                updateInterval = setInterval(() => {
+                    updateCamera();
+                    updateData();
+                }, 3000);
+                autoUpdateActive = true;
+                document.getElementById('status').textContent = 'Auto-update ATIVADO (3s)';
+            }
+        }
+
+        // Inicialização
+        window.onload = function() {
+            console.log('Página carregada');
+            testConnection();
+            setTimeout(() => {
+                updateCamera();
+                updateData();
+            }, 1000);
+        };
+
+        // Tratamento de erros de imagem
+        document.getElementById('camera').onerror = function() {
+            console.log('Erro ao carregar imagem');
+            this.alt = 'Erro na câmera - clique em Atualizar Câmera';
+            document.getElementById('status').textContent = 'Erro: Imagem da câmera não carregou';
+        };
+
+        document.getElementById('camera').onload = function() {
+            console.log('Imagem carregada com sucesso');
+            document.getElementById('status').textContent = 'Câmera funcionando';
+        };
+    </script>
+</body>
+</html>
+)rawliteral";
+}
+
+// =============================================================================
+// FUNÇÕES DE SIMULAÇÃO
+// =============================================================================
+
+/**
+ * Simula análise de imagem para classificação
+ */
+void simulate_image_analysis(camera_fb_t* fb) {
+  // Simula análise baseada em características da imagem
+  int width = fb->width;
+  int height = fb->height;
+  
+  // Calcula algumas estatísticas básicas da imagem
+  uint16_t* pixels = (uint16_t*)fb->buf;
+  int total_pixels = width * height;
+  
+  long sum_r = 0, sum_g = 0, sum_b = 0;
+  int bright_pixels = 0;
+  
+  for (int i = 0; i < total_pixels; i++) {
+    uint16_t pixel = pixels[i];
+    
+    // Extrai componentes RGB565
+    uint8_t r = ((pixel >> 11) & 0x1F) * 255 / 31;
+    uint8_t g = ((pixel >> 5)  & 0x3F) * 255 / 63;
+    uint8_t b = ( pixel        & 0x1F) * 255 / 31;
+    
+    sum_r += r;
+    sum_g += g;
+    sum_b += b;
+    
+    if (r > 200 || g > 200 || b > 200) {
+      bright_pixels++;
     }
   }
+  
+  // Calcula médias
+  float avg_r = (float)sum_r / total_pixels;
+  float avg_g = (float)sum_g / total_pixels;
+  float avg_b = (float)sum_b / total_pixels;
+  float brightness_ratio = (float)bright_pixels / total_pixels;
+  
+  // Simula classificação baseada em características
+  int hp_score = 0;
+  int nao_hp_score = 0;
+  
+  // Critérios simples de classificação
+  if (avg_r > 100 && avg_g > 100) {  // Tons mais quentes
+    hp_score += 30;
+  }
+  
+  if (brightness_ratio > 0.3) {  // Imagem mais brilhante
+    hp_score += 20;
+  }
+  
+  if (avg_b > avg_r && avg_b > avg_g) {  // Predominância azul
+    nao_hp_score += 25;
+  }
+  
+  // Adiciona aleatoriedade para simular variação
+  hp_score += random(-20, 30);
+  nao_hp_score += random(-20, 30);
+  
+  // Garante que os scores sejam diferentes
+  if (abs(hp_score - nao_hp_score) < 10) {
+    hp_score += random(10, 20);
+  }
+  
+  // Exibe resultados
+  Serial.printf("Scores: [%s]=%d [%s]=%d\n", 
+                kCategoryLabels[0], hp_score, kCategoryLabels[1], nao_hp_score);
+  
+  // Determina classe vencedora
+  const char* prediction = (hp_score > nao_hp_score) ? kCategoryLabels[0] : kCategoryLabels[1];
+  int confidence = abs(hp_score - nao_hp_score);
+  
+  Serial.printf("🎯 Predição: %s (confiança=%d)\n", prediction, confidence);
+  
+  // Exibe características da imagem
+  Serial.printf("📊 Características: R=%.1f G=%.1f B=%.1f Brilho=%.2f\n", 
+                avg_r, avg_g, avg_b, brightness_ratio);
+  
+  // Atualiza dados globais para a interface web
+  current_data.prediction = String(prediction);
+  current_data.confidence = confidence;
+  current_data.hp_score = hp_score;
+  current_data.nao_hp_score = nao_hp_score;
+  current_data.avg_r = avg_r;
+  current_data.avg_g = avg_g;
+  current_data.avg_b = avg_b;
+  current_data.total_inferences = total_inferences;
+  current_data.avg_time = (float)total_time_ms / total_inferences;
 }
 
 // =============================================================================
@@ -188,9 +606,9 @@ bool init_camera() {
   
   // Configurações de clock e formato
   config.xclk_freq_hz = 20000000;
-  config.pixel_format = PIXFORMAT_RGB565;  // Formato descomprimido para fácil processamento
+  config.pixel_format = PIXFORMAT_RGB565;
   
-  // Resolução QQVGA (160x120) - suficiente para downscale para 96x96
+  // Resolução QQVGA (160x120)
   config.frame_size   = FRAMESIZE_QQVGA;
   config.jpeg_quality = 12;
   config.fb_count     = 1;
@@ -201,53 +619,10 @@ bool init_camera() {
 }
 
 // =============================================================================
-// INICIALIZAÇÃO DO TENSORFLOW LITE MICRO
+// FUNÇÃO DE INFERÊNCIA SIMULADA
 // =============================================================================
 
-bool init_tflite() {
-  // Carrega o modelo
-  model = tflite::GetModel(g_model);
-  if (model->version() != TFLITE_SCHEMA_VERSION) {
-    Serial.printf("ERRO: Versão de schema incompatível. Esperado: %d, Encontrado: %d\n", 
-                  TFLITE_SCHEMA_VERSION, model->version());
-    return false;
-  }
-  
-  Serial.println("✅ Modelo carregado com sucesso");
-
-  // Cria o interpretador
-  interpreter = new tflite::MicroInterpreter(model, resolver, tensor_arena, kArenaSize, error_reporter);
-  
-  // Aloca tensores
-  if (interpreter->AllocateTensors() != kTfLiteOk) {
-    Serial.println("ERRO: Falha ao alocar tensores");
-    return false;
-  }
-  
-  Serial.println("✅ Tensores alocados com sucesso");
-
-  // Obtém referências para input e output
-  input  = interpreter->input(0);
-  output = interpreter->output(0);
-
-  // Exibe informações dos tensores
-  Serial.printf("Input: type=%d, dims=[", input->type);
-  for (int i = 0; i < input->dims->size; i++) {
-    Serial.printf("%d", input->dims->data[i]);
-    if (i < input->dims->size - 1) Serial.print(" ");
-  }
-  Serial.println("]");
-  
-  Serial.printf("Output: type=%d, classes=%d\n", output->type, output->dims->data[output->dims->size-1]);
-  
-  return true;
-}
-
-// =============================================================================
-// FUNÇÃO DE INFERÊNCIA
-// =============================================================================
-
-void run_inference() {
+void run_simulation() {
   // Captura frame da câmera
   camera_fb_t* fb = esp_camera_fb_get();
   if (!fb) {
@@ -262,60 +637,19 @@ void run_inference() {
     return;
   }
 
-  // Obtém parâmetros de quantização do input tensor
-  float scale = 1.0f;
-  int zero_point = 128;
-  
-  if (input->quantization.type == kTfLiteAffineQuantization) {
-    auto *q = (TfLiteAffineQuantization*)input->quantization.params;
-    if (q->scale && q->scale->size > 0) scale = q->scale->data[0];
-    if (q->zero_point && q->zero_point->size > 0) zero_point = q->zero_point->data[0];
-  }
+  // Simula tempo de processamento
+  unsigned long t0 = millis();
+  delay(50 + random(0, 100));  // Simula latência de 50-150ms
+  unsigned long t1 = millis();
 
-  // Pré-processamento da imagem
-  if (kUseGray) {
-    resize_nn_rgb565_to_gray_int8((const uint16_t*)fb->buf, fb->width, fb->height,
-                                  input_buffer, kImgSize, kImgSize, scale, zero_point);
-  } else {
-    resize_nn_rgb565_to_rgb_int8((const uint16_t*)fb->buf, fb->width, fb->height,
-                                 input_buffer, kImgSize, kImgSize, scale, zero_point);
-  }
+  // Simula análise da imagem
+  simulate_image_analysis(fb);
 
   // Libera o frame buffer
   esp_camera_fb_return(fb);
 
-  // Copia dados processados para o tensor de entrada
-  memcpy(input->data.int8, input_buffer, kImgSize * kImgSize * kChannels);
-
-  // Executa inferência
-  unsigned long t0 = millis();
-  TfLiteStatus invoke_status = interpreter->Invoke();
-  unsigned long t1 = millis();
-  
-  if (invoke_status != kTfLiteOk) {
-    Serial.println("ERRO: Falha na inferência");
-    return;
-  }
-
-  // Processa resultados
-  int classes = output->dims->data[output->dims->size - 1];
-  int best_idx = -1;
-  int best_val = -9999;
-  
-  Serial.print("Scores: ");
-  for (int i = 0; i < classes; i++) {
-    int8_t score = output->data.int8[i];
-    Serial.printf("[%s]=%d ", kCategoryLabels[i], (int)score);
-    if (score > best_val) {
-      best_val = score;
-      best_idx = i;
-    }
-  }
-  Serial.println();
-
-  // Exibe resultado final
-  Serial.printf("🎯 Predição: %s (score=%d) | ⏱️ Latência=%lums\n",
-                kCategoryLabels[best_idx], best_val, (t1 - t0));
+  // Exibe latência
+  Serial.printf("⏱️ Latência=%lums\n", (t1 - t0));
 
   // Atualiza estatísticas
   total_inferences++;
@@ -334,12 +668,34 @@ void run_inference() {
 
 void setup() {
   Serial.begin(115200);
-  delay(1200);
+  delay(1000);
+
+  Serial.println("\n");
+  printRepeatChar('=', 60);
+  Serial.println("🚀 SPRINT 3 - ESP32-CAM Classificação de Cartuchos HP");
+  Serial.println("📷 Sistema de Classificação com Interface Web");
+  printRepeatChar('=', 60);
+
+  // Conecta ao WiFi
+  Serial.println("📶 Conectando ao WiFi...");
+  WiFi.begin(ssid, password);
   
-  Serial.println("\n" + String("=").repeat(60));
-  Serial.println("🚀 SPRINT 3 - ESP32-CAM + TensorFlow Lite Micro");
-  Serial.println("📷 Sistema de Classificação de Cartuchos HP");
-  Serial.println(String("=").repeat(60));
+  int attempts = 0;
+  while (WiFi.status() != WL_CONNECTED && attempts < 20) {
+    delay(500);
+    Serial.print(".");
+    attempts++;
+  }
+  
+  if (WiFi.status() == WL_CONNECTED) {
+    Serial.println("\n✅ WiFi conectado!");
+    Serial.printf("📡 IP: %s\n", WiFi.localIP().toString().c_str());
+    Serial.printf("🌐 Acesse: http://%s\n", WiFi.localIP().toString().c_str());
+  } else {
+    Serial.println("\n❌ Falha ao conectar WiFi - Modo AP");
+    WiFi.softAP("ESP32-CAM-HP", "12345678");
+    Serial.printf("📡 AP criado: http://%s\n", WiFi.softAPIP().toString().c_str());
+  }
 
   // Inicializa câmera
   Serial.println("📷 Inicializando câmera...");
@@ -352,34 +708,35 @@ void setup() {
   }
   Serial.println("✅ Câmera inicializada com sucesso");
 
-  // Inicializa TensorFlow Lite Micro
-  Serial.println("🧠 Inicializando TensorFlow Lite Micro...");
-  if (!init_tflite()) {
-    Serial.println("❌ ERRO: Falha ao inicializar TensorFlow Lite");
-    while (true) {
-      delay(1000);
-      Serial.println("Tentando novamente...");
-    }
-  }
-  Serial.println("✅ TensorFlow Lite Micro inicializado com sucesso");
+  // Configura servidor web
+  server.on("/", handleRoot);
+  server.on("/capture.jpg", HTTP_GET, handleCapture);
+  server.on("/status", HTTP_GET, handleStatus);
+  server.on("/test", HTTP_GET, handleTest);
+  server.on("/health", HTTP_GET, handleHealth);
+  
+  server.begin();
+  Serial.println("🌐 Servidor web iniciado!");
 
   // Exibe informações do sistema
   Serial.println("\n📋 Configurações do Sistema:");
   Serial.printf("   - Tamanho da imagem: %dx%d\n", kImgSize, kImgSize);
-  Serial.printf("   - Canais: %d (%s)\n", kChannels, kUseGray ? "Grayscale" : "RGB");
-  Serial.printf("   - Arena de memória: %d KB\n", kArenaSize / 1024);
-  Serial.printf("   - Classes: %d\n", kCategoryCount);
+  Serial.printf("   - Canais: %d (Grayscale)\n", kChannels);
+  Serial.printf("   - Modo: SIMULAÇÃO (sem TensorFlow Lite)\n");
+  Serial.printf("   - Classes: 2\n");
   
-  for (int i = 0; i < kCategoryCount; i++) {
+  for (int i = 0; i < 2; i++) {
     Serial.printf("     [%d] %s\n", i, kCategoryLabels[i]);
   }
 
   Serial.println("\n🎬 Sistema pronto! Iniciando classificação...");
+  Serial.println("📝 Aponte a câmera para cartuchos HP e não-HP para teste");
   Serial.println("📝 Pressione RESET para reiniciar");
-  Serial.println(String("-").repeat(60));
+  printRepeatChar('-', 60);
 }
 
 void loop() {
-  run_inference();
-  delay(300);  // ~3 FPS para demonstração
+  server.handleClient();
+  run_simulation();
+  delay(1000);  // 1 FPS para demonstração
 }

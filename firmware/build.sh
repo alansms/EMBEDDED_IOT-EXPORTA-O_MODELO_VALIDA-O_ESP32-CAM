@@ -29,20 +29,17 @@ if [ ! -f "src/model.h" ]; then
 fi
 
 echo "📦 Instalando dependências..."
-pio lib install
+pio lib install -e camera_test
 
-echo "🔨 Compilando firmware..."
-pio run
+echo "🔨 Compilando e fazendo upload para o ambiente camera_test..."
+pio run -e camera_test --target upload
 
 if [ $? -eq 0 ]; then
-    echo "✅ Compilação concluída com sucesso!"
+    echo "✅ Compilação e upload concluídos com sucesso!"
     echo ""
-    echo "📤 Para fazer upload:"
-    echo "  pio run --target upload"
-    echo ""
-    echo "📊 Para monitorar serial:"
-    echo "  pio device monitor"
+    echo "📊 Para monitorar a saída serial, use o comando:"
+    echo "  pio device monitor -e camera_test"
 else
-    echo "❌ Falha na compilação!"
+    echo "❌ Falha na compilação ou no upload!"
     exit 1
 fi

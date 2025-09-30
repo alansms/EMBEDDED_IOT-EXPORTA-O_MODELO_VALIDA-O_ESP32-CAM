@@ -1,0 +1,25 @@
+/* ESP32 sdkconfig.h
+ * Este arquivo contém definições mínimas necessárias para o ESP-IDF.
+ * Configurações para projeto Sprint 3 - 2025
+ */
+
+#pragma once
+
+// Configurações básicas do FreeRTOS
+#define CONFIG_FREERTOS_HZ 1000
+#define CONFIG_FREERTOS_MAX_TASK_NAME_LEN 16
+
+// Configurações de memória
+#define CONFIG_ESP32_SPIRAM_SUPPORT 1
+#define CONFIG_SPIRAM_ALLOW_BSS_SEG_EXTERNAL_MEMORY 1
+#define CONFIG_SPIRAM_BANKSWITCH_ENABLE 1
+#define CONFIG_SPIRAM_CACHE_WORKAROUND 1
+#define CONFIG_SPIRAM_MALLOC_ALWAYSINTERNAL 16384
+#define CONFIG_SPIRAM_TYPE_AUTO 1
+#define CONFIG_SPIRAM_USE_CAPS_ALLOC 1
+
+// CDC USB
+#define CONFIG_TINYUSB_CDC_ENABLED 1
+
+// Definições para TensorFlow Lite
+#define CONFIG_TFLITE_DYNAMIC_ALLOC 1

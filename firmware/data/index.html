@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ESP32-CAM HP Detector</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body { font-family: Arial; margin: 20px; background: #f0f0f0; }
+        .container { max-width: 600px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; }
+        h1 { color: #0066cc; text-align: center; }
+        .camera-box { border: 2px solid #ccc; padding: 10px; margin: 20px 0; text-align: center; }
+        #camera { max-width: 100%; height: auto; }
+        .data { background: #f9f9f9; padding: 15px; margin: 10px 0; border-radius: 5px; }
+        .result { font-size: 20px; font-weight: bold; padding: 15px; margin: 10px 0; border-radius: 5px; text-align: center; }
+        .hp { background: #d4edda; color: #155724; border: 2px solid #28a745; }
+        .nao-hp { background: #f8d7da; color: #721c24; border: 2px solid #dc3545; }
+        button { background: #0066cc; color: white; border: none; padding: 10px 15px; margin: 5px; border-radius: 5px; cursor: pointer; }
+        button:hover { background: #0052a3; }
+        .stats { display: flex; justify-content: space-between; margin: 10px 0; }
+        .stat { text-align: center; }
+        .value { font-size: 18px; font-weight: bold; color: #0066cc; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 ESP32-CAM Classificador HP</h1>
+
+        <div class="camera-box">
+            <h3>📷 Câmera ao Vivo</h3>
+            <img id="camera" src="/capture.jpg" alt="Loading camera..." />
+            <br><br>
+            <button onclick="updateCamera()">🔄 Atualizar Câmera</button>
+            <button onclick="testConnection()">🧪 Testar Conexão</button>
+        </div>
+
+        <div id="result" class="result">🔍 Aguardando análise...</div>
+
+        <div class="data">
+            <h3>📊 Resultados</h3>
+            <div class="stats">
+                <div class="stat">
+                    <div>HP Original</div>
+                    <div class="value" id="hp">0%</div>
+                </div>
+                <div class="stat">
+                    <div>Não HP</div>
+                    <div class="value" id="nao-hp">0%</div>
+                </div>
+                <div class="stat">
+                    <div>Confiança</div>
+                    <div class="value" id="conf">0%</div>
+                </div>
+            </div>
+
+            <p><strong>RGB:</strong> R=<span id="r">-</span>, G=<span id="g">-</span>, B=<span id="b">-</span></p>
+            <p><strong>Análises:</strong> <span id="total">0</span> | <strong>Tempo:</strong> <span id="tempo">0ms</span></p>
+
+            <button onclick="updateData()">📊 Atualizar Dados</button>
+            <button onclick="autoUpdate()">⚡ Auto-Update</button>
+        </div>
+
+        <div class="data">
+            <h3>🔧 Diagnóstico</h3>
+            <p id="status">Carregando...</p>
+            <button onclick="diagnosis()">🩺 Diagnóstico</button>
+        </div>
+    </div>
+
+    <script>
+        let autoUpdateActive = false;
+        let updateInterval;
+
+        function updateCamera() {
+            console.log('Atualizando câmera...');
+            const img = document.getElementById('camera');
+            const timestamp = Date.now();
+            img.src = '/capture.jpg?t=' + timestamp;
+        }
+
+        function updateData() {
+            console.log('Buscando dados...');
+            fetch('/status')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('hp').textContent = data.scores.hp_original.toFixed(1) + '%';
+                    document.getElementById('nao-hp').textContent = data.scores.nao_hp.toFixed(1) + '%';
+                    document.getElementById('conf').textContent = data.confidence.toFixed(1) + '%';
+                    document.getElementById('r').textContent = data.features.r.toFixed(0);
+                    document.getElementById('g').textContent = data.features.g.toFixed(0);
+                    document.getElementById('b').textContent = data.features.b.toFixed(0);
+                    document.getElementById('total').textContent = data.stats.total_inferences;
+                    document.getElementById('tempo').textContent = data.stats.avg_time.toFixed(1) + 'ms';
+
+                    const result = document.getElementById('result');
+                    if (data.prediction === 'HP_ORIGINAL') {
+                        result.className = 'result hp';
+                        result.textContent = '✅ HP ORIGINAL (' + data.confidence.toFixed(1) + '%)';
+                    } else {
+                        result.className = 'result nao-hp';
+                        result.textContent = '❌ NÃO HP (' + data.confidence.toFixed(1) + '%)';
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro:', error);
+                    document.getElementById('status').textContent = 'Erro na comunicação: ' + error.message;
+                });
+        }
+
+        function testConnection() {
+            console.log('Testando conexão...');
+            fetch('/test')
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('status').textContent = 'Teste OK: ' + data;
+                })
+                .catch(error => {
+                    document.getElementById('status').textContent = 'Erro no teste: ' + error.message;
+                });
+        }
+
+        function diagnosis() {
+            console.log('Executando diagnóstico...');
+            fetch('/health')
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('status').textContent = 'Diagnóstico: ' + data;
+                })
+                .catch(error => {
+                    document.getElementById('status').textContent = 'Erro no diagnóstico: ' + error.message;
+                });
+        }
+
+        function autoUpdate() {
+            if (autoUpdateActive) {
+                clearInterval(updateInterval);
+                autoUpdateActive = false;
+                document.getElementById('status').textContent = 'Auto-update DESATIVADO';
+            } else {
+                updateInterval = setInterval(() => {
+                    updateCamera();
+                    updateData();
+                }, 3000);
+                autoUpdateActive = true;
+                document.getElementById('status').textContent = 'Auto-update ATIVADO (3s)';
+            }
+        }
+
+        // Inicialização
+        window.onload = function() {
+            console.log('Página carregada');
+            testConnection();
+            setTimeout(() => {
+                updateCamera();
+                updateData();
+            }, 1000);
+        };
+
+        // Tratamento de erros de imagem
+        document.getElementById('camera').onerror = function() {
+            console.log('Erro ao carregar imagem');
+            this.alt = 'Erro na câmera - clique em Atualizar Câmera';
+            document.getElementById('status').textContent = 'Erro: Imagem da câmera não carregou';
+        };
+
+        document.getElementById('camera').onload = function() {
+            console.log('Imagem carregada com sucesso');
+            document.getElementById('status').textContent = 'Câmera funcionando';
+        };
+    </script>
+</body>
+</html>
